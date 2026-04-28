@@ -198,9 +198,19 @@ notificationBigMsg =
         if (iconName == null || iconName.isEmpty()) {
             iconName = iconNameDefault
         }
+
         icon = resources.getIdentifier(iconName, "mipmap", packageName)
+
 if (icon == 0) {
-    icon = android.R.drawable.ic_menu_mylocation
+    icon = resources.getIdentifier(iconName, "drawable", packageName)
+}
+
+if (icon == 0) {
+    icon = resources.getIdentifier("ic_launcher", "mipmap", packageName)
+}
+
+if (icon == 0) {
+    icon = android.R.drawable.ic_dialog_info
 }
         notificationIconColor =
             intent.getLongExtra(Keys.SETTINGS_ANDROID_NOTIFICATION_ICON_COLOR, 0).toInt()
