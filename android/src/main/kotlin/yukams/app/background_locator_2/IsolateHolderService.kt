@@ -199,7 +199,7 @@ notificationBigMsg =
             iconName = iconNameDefault
         }
 
-        icon = resources.getIdentifier(iconName, "mipmap", packageName)
+       icon = resources.getIdentifier("ic_notification", "drawable", packageName)
 
 if (icon == 0) {
     icon = resources.getIdentifier(iconName, "drawable", packageName)
