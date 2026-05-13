@@ -101,60 +101,89 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
         }
     }
 
+// private fun getNotification(): Notification {
+
+//     val channelId = "background_location_channel"
+//     val channelName = "Background Location Service"
+
+//     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+//         val notificationManager =
+//             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+//         try {
+
+//             var channel =
+//                 notificationManager.getNotificationChannel(channelId)
+
+//             if (channel == null) {
+
+//                 channel = NotificationChannel(
+//                     channelId,
+//                     channelName,
+//                     NotificationManager.IMPORTANCE_LOW
+//                 )
+
+//                 channel.description = "Background location tracking"
+
+//                 notificationManager.createNotificationChannel(channel)
+//             }
+
+//         } catch (e: Exception) {
+//             e.printStackTrace()
+//         }
+//     }
+
+//     val intent = Intent(this, getMainActivityClass(this))
+//     intent.action = Keys.NOTIFICATION_ACTION
+
+//     val pendingIntent = PendingIntent.getActivity(
+//         this,
+//         1,
+//         intent,
+//         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+//     )
+
+//     return NotificationCompat.Builder(this, channelId)
+//         .setContentTitle("Location Service")
+//         .setContentText("Running in background")
+//         .setStyle(
+//             NotificationCompat.BigTextStyle()
+//                 .bigText("Background location tracking is active")
+//         )
+//         .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+//         .setPriority(NotificationCompat.PRIORITY_LOW)
+//         .setContentIntent(pendingIntent)
+//         .setOnlyAlertOnce(true)
+//         .setOngoing(true)
+//         .build()
+// }
+
 private fun getNotification(): Notification {
 
-    val channelId = "background_location_channel"
-    val channelName = "Background Location Service"
+    val channelId = "locator_service_v2"
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val manager =
+            getSystemService(NotificationManager::class.java)
 
-        try {
+        if (manager.getNotificationChannel(channelId) == null) {
 
-            var channel =
-                notificationManager.getNotificationChannel(channelId)
+            val channel = NotificationChannel(
+                channelId,
+                "Locator Service",
+                NotificationManager.IMPORTANCE_LOW
+            )
 
-            if (channel == null) {
-
-                channel = NotificationChannel(
-                    channelId,
-                    channelName,
-                    NotificationManager.IMPORTANCE_LOW
-                )
-
-                channel.description = "Background location tracking"
-
-                notificationManager.createNotificationChannel(channel)
-            }
-
-        } catch (e: Exception) {
-            e.printStackTrace()
+            manager.createNotificationChannel(channel)
         }
     }
 
-    val intent = Intent(this, getMainActivityClass(this))
-    intent.action = Keys.NOTIFICATION_ACTION
-
-    val pendingIntent = PendingIntent.getActivity(
-        this,
-        1,
-        intent,
-        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-    )
-
     return NotificationCompat.Builder(this, channelId)
+        .setSmallIcon(android.R.drawable.ic_menu_mylocation)
         .setContentTitle("Location Service")
         .setContentText("Running in background")
-        .setStyle(
-            NotificationCompat.BigTextStyle()
-                .bigText("Background location tracking is active")
-        )
-        .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-        .setPriority(NotificationCompat.PRIORITY_LOW)
-        .setContentIntent(pendingIntent)
-        .setOnlyAlertOnce(true)
         .setOngoing(true)
         .build()
 }
