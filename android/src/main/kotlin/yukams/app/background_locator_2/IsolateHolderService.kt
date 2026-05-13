@@ -101,57 +101,36 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
         }
     }
 
-    private fun getNotification(): Notification {
+private fun getNotification(): Notification {
 
-    val safeChannelId =
-        if (Keys.CHANNEL_ID.isBlank())
-            "background_locator_channel"
-        else
-            Keys.CHANNEL_ID
-
-    val safeChannelName =
-        if (notificationChannelName.isBlank())
-            "Background Location Service"
-        else
-            notificationChannelName
-
-    val safeTitle =
-        if (notificationTitle.isBlank())
-            "Location Service"
-        else
-            notificationTitle
-
-    val safeMsg =
-        if (notificationMsg.isBlank())
-            "Running in background"
-        else
-            notificationMsg
-
-    val safeBigMsg =
-        if (notificationBigMsg.isBlank())
-            safeMsg
-        else
-            notificationBigMsg
+    val channelId = "background_location_channel"
+    val channelName = "Background Location Service"
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        var channel =
-            notificationManager.getNotificationChannel(safeChannelId)
+        try {
 
-        if (channel == null) {
+            var channel =
+                notificationManager.getNotificationChannel(channelId)
 
-            channel = NotificationChannel(
-                safeChannelId,
-                safeChannelName,
-                NotificationManager.IMPORTANCE_LOW
-            )
+            if (channel == null) {
 
-            channel.description = "Background location tracking"
+                channel = NotificationChannel(
+                    channelId,
+                    channelName,
+                    NotificationManager.IMPORTANCE_LOW
+                )
 
-            notificationManager.createNotificationChannel(channel)
+                channel.description = "Background location tracking"
+
+                notificationManager.createNotificationChannel(channel)
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -165,11 +144,12 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
 
-    return NotificationCompat.Builder(this, safeChannelId)
-        .setContentTitle(safeTitle)
-        .setContentText(safeMsg)
+    return NotificationCompat.Builder(this, channelId)
+        .setContentTitle("Location Service")
+        .setContentText("Running in background")
         .setStyle(
-            NotificationCompat.BigTextStyle().bigText(safeBigMsg)
+            NotificationCompat.BigTextStyle()
+                .bigText("Background location tracking is active")
         )
         .setSmallIcon(android.R.drawable.ic_menu_mylocation)
         .setPriority(NotificationCompat.PRIORITY_LOW)
