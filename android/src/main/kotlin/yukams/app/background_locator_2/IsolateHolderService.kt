@@ -102,40 +102,118 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
     }
 
     private fun getNotification(): Notification {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Notification channel is available in Android O and up
-            val channel = NotificationChannel(
-                Keys.CHANNEL_ID, notificationChannelName,
+
+    val safeChannelId =
+        if (Keys.CHANNEL_ID.isBlank())
+            "background_locator_channel"
+        else
+            Keys.CHANNEL_ID
+
+    val safeChannelName =
+        if (notificationChannelName.isBlank())
+            "Background Location Service"
+        else
+            notificationChannelName
+
+    val safeTitle =
+        if (notificationTitle.isBlank())
+            "Location Service"
+        else
+            notificationTitle
+
+    val safeMsg =
+        if (notificationMsg.isBlank())
+            "Running in background"
+        else
+            notificationMsg
+
+    val safeBigMsg =
+        if (notificationBigMsg.isBlank())
+            safeMsg
+        else
+            notificationBigMsg
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        var channel =
+            notificationManager.getNotificationChannel(safeChannelId)
+
+        if (channel == null) {
+
+            channel = NotificationChannel(
+                safeChannelId,
+                safeChannelName,
                 NotificationManager.IMPORTANCE_LOW
             )
 
-            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-                .createNotificationChannel(channel)
+            channel.description = "Background location tracking"
+
+            notificationManager.createNotificationChannel(channel)
         }
-
-        val intent = Intent(this, getMainActivityClass(this))
-        intent.action = Keys.NOTIFICATION_ACTION
-
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(
-            this,
-            1, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
-        return NotificationCompat.Builder(this, Keys.CHANNEL_ID)
-            .setContentTitle(notificationTitle)
-            .setContentText(notificationMsg)
-            .setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(notificationBigMsg)
-            )
-            .setSmallIcon(icon)
-            .setColor(notificationIconColor)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setContentIntent(pendingIntent)
-            .setOnlyAlertOnce(true) // so when data is updated don't make sound and alert in android 8.0+
-            .setOngoing(true)
-            .build()
     }
+
+    val intent = Intent(this, getMainActivityClass(this))
+    intent.action = Keys.NOTIFICATION_ACTION
+
+    val pendingIntent = PendingIntent.getActivity(
+        this,
+        1,
+        intent,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
+
+    return NotificationCompat.Builder(this, safeChannelId)
+        .setContentTitle(safeTitle)
+        .setContentText(safeMsg)
+        .setStyle(
+            NotificationCompat.BigTextStyle().bigText(safeBigMsg)
+        )
+        .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+        .setPriority(NotificationCompat.PRIORITY_LOW)
+        .setContentIntent(pendingIntent)
+        .setOnlyAlertOnce(true)
+        .setOngoing(true)
+        .build()
+}
+
+    // private fun getNotification(): Notification {
+    //     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+    //         // Notification channel is available in Android O and up
+    //         val channel = NotificationChannel(
+    //             Keys.CHANNEL_ID, notificationChannelName,
+    //             NotificationManager.IMPORTANCE_LOW
+    //         )
+
+    //         (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+    //             .createNotificationChannel(channel)
+    //     }
+
+    //     val intent = Intent(this, getMainActivityClass(this))
+    //     intent.action = Keys.NOTIFICATION_ACTION
+
+    //     val pendingIntent: PendingIntent = PendingIntent.getActivity(
+    //         this,
+    //         1, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    //     )
+
+    //     return NotificationCompat.Builder(this, Keys.CHANNEL_ID)
+    //         .setContentTitle(notificationTitle)
+    //         .setContentText(notificationMsg)
+    //         .setStyle(
+    //             NotificationCompat.BigTextStyle()
+    //                 .bigText(notificationBigMsg)
+    //         )
+    //         .setSmallIcon(icon)
+    //         .setColor(notificationIconColor)
+    //         .setPriority(NotificationCompat.PRIORITY_HIGH)
+    //         .setContentIntent(pendingIntent)
+    //         .setOnlyAlertOnce(true) // so when data is updated don't make sound and alert in android 8.0+
+    //         .setOngoing(true)
+    //         .build()
+    // }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.e("IsolateHolderService", "onStartCommand => intent.action : ${intent?.action}")
