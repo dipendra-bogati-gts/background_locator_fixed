@@ -162,7 +162,7 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
 private fun getNotification(): Notification {
 
     val channelId = "locator_service_v2"
-
+Log.e("LOCATOR_DEBUG", "Github PATH OVERRIDE ACTIVE")
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
         val manager =
